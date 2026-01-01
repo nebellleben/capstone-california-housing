@@ -3,9 +3,6 @@
 
 # 🎓 Capstone Project 1 — California Housing Prediction
 # 
-# 1. Project Overview
-# 1.1 Overview and Problem Statement
-# 
 # ## Import the required packages
 
 # In[90]:
@@ -236,10 +233,10 @@ optimizer = Adam(clipnorm=1.0)
 
 nn_model = Sequential()
 nn_model.add(Dense(64, input_dim=X_train_dense.shape[1], activation='relu'))
-nn_model.add(Dense(32, activation='relu'))
+nn_model.add(Dense(64, activation='relu'))
 nn_model.add(Dense(1))
 nn_model.compile(optimizer=optimizer, loss='mean_squared_error', metrics=[keras.metrics.RootMeanSquaredError()])
-nn_model.fit(X_train_dense, y_train, epochs=50, batch_size=32, validation_data=(X_val_dense, y_val))
+nn_model.fit(X_train_dense, y_train, epochs=200, batch_size=32, validation_data=(X_val_dense, y_val))
 test_results = nn_model.evaluate(X_test_dense, y_test, verbose=0)
 nn_predictions = nn_model.predict(X_test_dense, verbose=0)
 # Flatten predictions to 1D array

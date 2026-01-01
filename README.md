@@ -209,12 +209,12 @@ uv run python generate_eda_plots.py
    - Architecture:
      - Input layer: 13 features (after encoding)
      - Hidden layer 1: 64 neurons with ReLU activation
-     - Hidden layer 2: 32 neurons with ReLU activation
+     - Hidden layer 2: 64 neurons with ReLU activation
      - Output layer: 1 neuron (regression)
    - Optimizer: Adam
    - Loss function: Mean Squared Error
    - Metrics: Root Mean Squared Error
-   - Training: 20 epochs, batch size 32
+   - Training: 200 epochs, batch size 32
 
 ### Model Comparison Visualization
 
