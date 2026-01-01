@@ -366,7 +366,7 @@ with open('ridge_model.pkl', 'wb') as f:
     pickle.dump(ridge_model, f)
 
 with open('nn_model.pkl', 'wb') as f:
-    pickle.dump(model, f)
+    pickle.dump(nn_model, f)
 
 
 
