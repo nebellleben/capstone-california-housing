@@ -11,6 +11,7 @@ Capstone project for Machine Learning Zoomcamp Cohort 2025
 - [Exploratory Data Analysis (EDA)](#exploratory-data-analysis-eda)
 - [Model Training and Evaluation](#model-training-and-evaluation)
 - [Results](#results)
+- [Model Performance Discussion](#-model-performance-discussion)
 - [Usage](#usage)
 
 ## 🎯 Project Overview
@@ -93,16 +94,18 @@ capstone-california-housing/
 ├── pyproject.toml         # Project dependencies (uv)
 ├── requirements.txt       # Alternative requirements file
 ├── uv.lock               # Locked dependencies
-├── train.py              # Training script
-├── test.py               # Testing script
+├── train.py              # Training script (extracted from notebook)
+├── predict.py            # FastAPI prediction server
+├── main.py               # Main entry point (placeholder)
 ├── generate_eda_plots.py # Script to generate EDA visualization images
+├── model.pkl             # Trained models (DictVectorizer + 4 models)
 ├── images/               # Generated EDA plots
 │   ├── eda_histograms.png
 │   ├── eda_geographic.png
 │   ├── eda_correlation.png
 │   ├── eda_ocean_proximity.png
 │   └── eda_boxplot_ocean.png
-├── Dockerfile            # Containerization setup
+├── Dockerfile            # Containerization setup for prediction server
 └── README.md             # This file
 ```
 
@@ -211,7 +214,7 @@ uv run python generate_eda_plots.py
      - Hidden layer 1: 64 neurons with ReLU activation
      - Hidden layer 2: 64 neurons with ReLU activation
      - Output layer: 1 neuron (regression)
-   - Optimizer: Adam
+   - Optimizer: Adam with gradient clipping (clipnorm=1.0)
    - Loss function: Mean Squared Error
    - Metrics: Root Mean Squared Error
    - Training: 200 epochs, batch size 32
@@ -261,6 +264,118 @@ plt.show()
 
 Models were evaluated on the held-out test set to assess generalization performance. The test set results provide the final model comparison.
 
+## 🔍 Model Performance Discussion
+
+### Overall Performance Analysis
+
+All four models demonstrated remarkably similar performance, with RMSE values clustering around 68,000-69,000. This convergence suggests that:
+
+1. **Linear relationships dominate**: The strong linear relationships in the data (particularly with `median_income`) make linear models highly effective
+2. **Limited non-linearity**: The dataset may not contain significant non-linear patterns that would give neural networks a substantial advantage
+3. **Feature quality**: The engineered features (geographic coordinates, derived ratios) are well-suited for linear regression approaches
+
+### Model-by-Model Analysis
+
+#### 1. Linear Regression (Baseline)
+- **Performance**: Serves as a strong baseline with RMSE ~68,581
+- **Strengths**: 
+  - Highly interpretable coefficients
+  - Fast training and prediction
+  - No hyperparameter tuning required
+  - Provides feature importance insights
+- **Weaknesses**: 
+  - No regularization, potentially more sensitive to outliers
+  - Cannot capture complex interactions without feature engineering
+- **Use Case**: Best for scenarios requiring interpretability and when model simplicity is valued
+
+#### 2. Lasso Regression
+- **Performance**: Slightly better than baseline (RMSE ~68,564) with optimal alpha=24
+- **Strengths**:
+  - L1 regularization performs automatic feature selection
+  - Reduces overfitting risk
+  - Can zero out less important features
+  - Maintains interpretability
+- **Weaknesses**:
+  - Requires hyperparameter tuning
+  - May be too aggressive in feature selection for this dataset
+- **Use Case**: When feature selection is desired or when dealing with high-dimensional data
+
+#### 3. Ridge Regression
+- **Performance**: Best performing linear model (RMSE ~68,547) with optimal alpha=31
+- **Strengths**:
+  - L2 regularization prevents overfitting while retaining all features
+  - Better generalization than baseline
+  - More stable predictions than Lasso
+  - Still interpretable
+- **Weaknesses**:
+  - Requires hyperparameter tuning
+  - Does not perform feature selection
+- **Use Case**: **Recommended for production** - best balance of performance, stability, and interpretability
+
+#### 4. Neural Network
+- **Performance**: Competitive performance (~68,000) with 64-64 architecture
+- **Strengths**:
+  - Can capture non-linear relationships and feature interactions
+  - Flexible architecture allows for complex pattern learning
+  - Potential for improvement with more sophisticated architectures
+- **Weaknesses**:
+  - Requires more computational resources
+  - Longer training time (200 epochs)
+  - Less interpretable (black box)
+  - Sensitive to hyperparameters and initialization
+  - Risk of overfitting without proper regularization
+- **Use Case**: When non-linear patterns are suspected or when willing to trade interpretability for potential performance gains
+
+### Key Insights
+
+#### Why Ridge Performed Best
+1. **Optimal Regularization**: The L2 penalty (alpha=31) effectively balanced bias-variance trade-off
+2. **Feature Retention**: Unlike Lasso, Ridge retains all features, which is beneficial given the relatively small feature set (13 after encoding)
+3. **Stability**: L2 regularization provides more stable coefficients, reducing variance in predictions
+
+#### Why Neural Networks Didn't Outperform
+1. **Linear Dominance**: The problem is largely linear, with `median_income` showing strong linear correlation (~0.69)
+2. **Limited Complexity**: The 64-64 architecture may not be complex enough to capture additional patterns, or the patterns simply don't exist
+3. **Training Challenges**: Neural networks require careful tuning of learning rate, batch size, and regularization to avoid overfitting
+
+#### Performance Convergence
+The fact that all models perform similarly suggests:
+- **Data Quality**: The features are well-engineered and informative
+- **Problem Nature**: The relationship between features and target is primarily linear
+- **Model Saturation**: We may be approaching the information-theoretic limit of what can be predicted from these features
+
+### Practical Recommendations
+
+#### For Production Deployment
+1. **Primary Choice**: **Ridge Regression** - Best performance with good interpretability
+2. **Alternative**: Linear Regression if interpretability is critical and slight performance loss is acceptable
+3. **Ensemble Approach**: Consider averaging predictions from Ridge and Neural Network for potentially better generalization
+
+#### For Further Improvement
+1. **Feature Engineering**:
+   - Create interaction terms (e.g., `median_income × ocean_proximity`)
+   - Derive new features (e.g., rooms per household, bedrooms per room)
+   - Geographic clustering or distance-based features
+2. **Model Enhancements**:
+   - Try ensemble methods (Random Forest, Gradient Boosting)
+   - Experiment with deeper/wider neural networks
+   - Apply stacking or blending techniques
+3. **Data Improvements**:
+   - Collect more features (school quality, crime rates, etc.)
+   - Handle missing values more sophisticatedly
+   - Consider temporal features if data spans time
+
+### Limitations
+
+1. **RMSE Interpretation**: An RMSE of ~68,000 means predictions are off by approximately $68,000 on average, which is significant given median house values around $200,000-300,000
+2. **Feature Limitations**: The dataset may lack important predictive features (e.g., property condition, neighborhood amenities)
+3. **Geographic Granularity**: District-level aggregation may mask important local variations
+4. **Temporal Aspects**: The dataset is a snapshot; market conditions change over time
+
+### Conclusion
+
+While Ridge Regression achieved the best performance, the narrow performance gap between models suggests that **model selection should be based on practical considerations** (interpretability, deployment complexity, inference speed) rather than marginal performance differences. For this California housing prediction task, Ridge Regression offers the optimal balance of performance, stability, and interpretability for production use.
+
 ## 💻 Usage
 
 ### Running the Notebook
@@ -275,22 +390,79 @@ uv run jupyter notebook
 ### Running Training Scripts
 
 ```bash
-# Train models
+# Train models and save to model.pkl
 uv run python train.py
-
-# Test models
-uv run python test.py
 ```
 
+### Running the Prediction Server
+
+The project includes a FastAPI-based prediction server that provides a REST API for making predictions.
+
+#### Start the Server
+
+```bash
+# Make sure model.pkl exists (run train.py first if needed)
+uv run python predict.py
+```
+
+The server will start on `http://localhost:9696`
+
+#### Using the API
+
+1. **Interactive API Documentation**: Visit `http://localhost:9696/docs` for Swagger UI documentation
+
+2. **Make Predictions**: Send POST requests to `/predict` endpoint:
+
+```bash
+curl -X POST "http://localhost:9696/predict" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "longitude": -122.23,
+    "latitude": 37.88,
+    "housing_median_age": 41.0,
+    "total_rooms": 880.0,
+    "total_bedrooms": 129.0,
+    "population": 322.0,
+    "households": 126.0,
+    "median_income": 8.3252,
+    "ocean_proximity": "NEAR BAY"
+  }'
+```
+
+**Response Format:**
+```json
+{
+  "median house value (baseline model)": 410292.95,
+  "median house value (lasso model)": 410470.09,
+  "median house value (ridge model)": 410279.73,
+  "median house value (neural network model)": 398736.84
+}
+```
+
+**Required Input Fields:**
+- `longitude`: Longitude coordinate (float)
+- `latitude`: Latitude coordinate (float)
+- `housing_median_age`: Median age of houses (float)
+- `total_rooms`: Total number of rooms (float)
+- `total_bedrooms`: Total number of bedrooms (float)
+- `population`: Population count (float)
+- `households`: Number of households (float)
+- `median_income`: Median income (float)
+- `ocean_proximity`: One of "NEAR BAY", "<1H OCEAN", "INLAND", "NEAR OCEAN", "ISLAND" (string)
+
 ### Using Docker
+
+The Dockerfile is configured to run the prediction server:
 
 ```bash
 # Build the Docker image
 docker build -t california-housing .
 
-# Run the container
-docker run -p 8888:8888 california-housing
+# Run the container (exposes port 9696)
+docker run -p 9696:9696 california-housing
 ```
+
+The prediction API will be available at `http://localhost:9696`
 
 ## 🔧 Dependencies
 
@@ -302,15 +474,19 @@ Main dependencies (managed via `uv`):
 - **seaborn** >= 0.13.2 - Statistical visualization
 - **scikit-learn** >= 1.6.1 - Machine learning models
 - **tensorflow** >= 2.20.0 - Deep learning framework
+- **fastapi** >= 0.128.0 - Web framework for prediction API
+- **uvicorn** >= 0.39.0 - ASGI server for FastAPI
 
 See `pyproject.toml` or `requirements.txt` for complete dependency list.
 
 ## 📝 Notes
 
 - The project uses `uv` for fast package management
-- All models are saved using pickle for later use
-- Random seeds are set for reproducibility
-- The dataset has some missing values in `total_bedrooms` that should be handled in production
+- All models (DictVectorizer + 4 models) are saved to `model.pkl` using pickle
+- Random seeds are set for reproducibility (random_state=42)
+- Missing values in `total_bedrooms` are handled by filling with median from training set
+- The prediction server loads all models and returns predictions from all four models
+- Models are trained on 60% of data, validated on 20%, and tested on 20%
 
 ## 🎓 Learning Outcomes
 
@@ -320,7 +496,9 @@ This project demonstrates:
 - Hyperparameter tuning
 - Deep learning with Keras/TensorFlow
 - Model evaluation and comparison
+- REST API development with FastAPI
 - Containerization with Docker
+- Model deployment and serving
 
 ## 📄 License
 
