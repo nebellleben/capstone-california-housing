@@ -356,18 +356,6 @@ plt.xlabel('Importance')
 # Use pickle to export the models: baseline_model, lasso_model, ridge_model, model
 import pickle
 
-with open('baseline_model.pkl', 'wb') as f:
-    pickle.dump(baseline_model, f)
-
-with open('lasso_model.pkl', 'wb') as f:
-    pickle.dump(lasso_model, f)
-
-with open('ridge_model.pkl', 'wb') as f:
-    pickle.dump(ridge_model, f)
-
-with open('nn_model.pkl', 'wb') as f:
-    pickle.dump(nn_model, f)
-
-
-
+with open('model.pkl', 'wb') as f:
+    pickle.dump((dv, baseline_model, lasso_model, ridge_model, nn_model), f)
 
