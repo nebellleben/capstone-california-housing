@@ -13,6 +13,7 @@ Capstone project for Machine Learning Zoomcamp Cohort 2025
 - [Results](#results)
 - [Model Performance Discussion](#-model-performance-discussion)
 - [Usage](#usage)
+  - [Cloud Deployment](#cloud-deployment)
 
 ## 🎯 Project Overview
 
@@ -485,6 +486,26 @@ docker run -p 9696:9696 california-housing
 ```
 
 The prediction API will be available at `http://localhost:9696`
+
+### Cloud Deployment
+
+The prediction model is deployed on AWS and accessible via a web interface:
+
+**🌐 Live Deployment**: [http://california-housing-predictor.s3-website-us-east-1.amazonaws.com/](http://california-housing-predictor.s3-website-us-east-1.amazonaws.com/)
+
+The cloud deployment provides:
+- Interactive web interface for making predictions
+- All four models (Baseline, Lasso, Ridge, Neural Network) available
+- No local setup required
+- Accessible from any device with internet connection
+
+**How to Use:**
+1. Visit the URL above
+2. Enter the Lambda Function URL in the configuration section (if not pre-configured)
+3. Fill in the housing data (longitude, latitude, housing median age, etc.)
+4. Click "Predict House Value" to get predictions from all four models
+
+**Note**: The cloud deployment uses AWS Lambda for the prediction API and S3 for hosting the web interface. For deployment details, see the [`aws-deployment/README.md`](aws-deployment/README.md) directory.
 
 ## 🔧 Dependencies
 

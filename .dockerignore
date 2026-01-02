@@ -7,38 +7,44 @@ __pycache__/
 *.egg-info/
 dist/
 build/
-
-# Virtual environments
 .venv/
 venv/
-ENV/
 env/
 
-# Jupyter Notebook
-.ipynb_checkpoints
+# Jupyter
+.ipynb_checkpoints/
 *.ipynb
+
+# Project files
+train.py
+generate_eda_plots.py
+main.py
+predict.py
+project.ipynb
+README.md
+images/
+housing.csv
 
 # IDE
 .vscode/
 .idea/
 *.swp
 *.swo
+*~
 
 # OS
 .DS_Store
 Thumbs.db
 
-# Project specific
-*.csv
-images/
-generate_eda_plots.py
-test.py
-train.py
-project.ipynb
-README.md
+# Git
 .git/
 .gitignore
 
-# UV
-.uv/
+# Docker
+Dockerfile
+Dockerfile.lambda
+.dockerignore
 
+# Test files
+test_*.py
+*_test.py
