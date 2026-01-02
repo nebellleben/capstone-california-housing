@@ -5,7 +5,7 @@
 # 
 # ## Import the required packages
 
-# In[90]:
+# In[4]:
 
 
 import pandas as pd
@@ -27,7 +27,7 @@ from keras.optimizers import Adam
 
 # ## Load Data
 
-# In[91]:
+# In[2]:
 
 
 df = pd.read_csv('housing.csv')
@@ -37,7 +37,7 @@ print(df.shape)
 
 # ## 2. Data Preparation and Exploratory Data Analysis (EDA)
 
-# In[92]:
+# In[ ]:
 
 
 # 2. Data Preparation and Exploratory Data Analysis (EDA)
@@ -45,12 +45,14 @@ print(df.shape)
 # Show the columns
 print(df.columns)
 
+df['total_bedrooms'] = df['total_bedrooms'].fillna(0)
+
 # ocean_proximity is categorical variable
 to_categorical = ['ocean_proximity']
 df[to_categorical] = df[to_categorical].astype('category')
 
 # housing_median_age and total_rooms are integer variables
-to_integer = ['housing_median_age', 'total_rooms', 'households', 'population']
+to_integer = ['housing_median_age', 'total_rooms', 'total_bedrooms', 'households', 'population']
 df[to_integer] = df[to_integer].astype('int64')
 
 numerical_features = ['longitude', 'latitude', 'housing_median_age', 'total_rooms', 'total_bedrooms', 'population', 'households', 'median_income']
@@ -66,7 +68,7 @@ print(nan_counts)
 
 
 
-# In[93]:
+# In[ ]:
 
 
 # plot the histogram of the numerical features (in 2 columns)
@@ -124,19 +126,13 @@ plt.show()
 
 # # 3. Data Preprocessing
 
-# In[94]:
+# In[ ]:
 
 
 # Split the data into training and testing sets
 df_all_train, df_test = train_test_split(df, test_size=0.2, random_state=42)
 df_train, df_val = train_test_split(df_all_train, test_size=0.25, random_state=42)
 
-# Handle missing values in total_bedrooms using median from training set
-median_bedrooms = df_train['total_bedrooms'].median()
-df_train['total_bedrooms'] = df_train['total_bedrooms'].fillna(median_bedrooms)
-df_all_train['total_bedrooms'] = df_all_train['total_bedrooms'].fillna(median_bedrooms)
-df_val['total_bedrooms'] = df_val['total_bedrooms'].fillna(median_bedrooms)
-df_test['total_bedrooms'] = df_test['total_bedrooms'].fillna(median_bedrooms)
 
 y_train = df_train.median_house_value.values
 y_all_train = df_all_train.median_house_value.values
@@ -167,7 +163,7 @@ print(dv.get_feature_names_out())
 
 # ## 4. Model Training and Evaluation
 
-# In[95]:
+# In[ ]:
 
 
 # 4. Model Training and Evaluation
@@ -255,7 +251,7 @@ else:
 
 # ## Visualize the Results
 
-# In[100]:
+# In[ ]:
 
 
 # Plot the predictions of each of the above models in separate subplots
@@ -320,7 +316,7 @@ print(f"Ridge Model has RMSE: {ridge_rmse_test:.2f}")
 print(f"Neural Network Model has RMSE: {nn_rmse_test:.2f}")
 
 
-# In[103]:
+# In[ ]:
 
 
 # Understand the linear regression model parameters

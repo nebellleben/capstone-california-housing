@@ -82,8 +82,11 @@ source .venv/bin/activate  # On macOS/Linux
 
 4. Install Jupyter kernel (for notebook support):
 ```bash
-uv run python -m ipykernel install --user --name=capstone-california-housing
+uv sync --dev  # Install dev dependencies including Jupyter
+uv run python -m ipykernel install --user --name=capstone-california-housing --display-name "Python (uv: capstone-california-housing)"
 ```
+
+The kernel is now registered and available in Jupyter. When opening a notebook, select **"Python (uv: capstone-california-housing)"** as the kernel to use the `uv` environment.
 
 ## 📁 Project Structure
 
@@ -206,7 +209,7 @@ uv run python generate_eda_plots.py
 3. **Ridge Regression**
    - L2 regularization to prevent overfitting
    - Hyperparameter tuning: alpha values from 0.001 to 1000
-   - Best alpha: 31 (lowest validation RMSE)
+   - Best alpha: 10 (lowest validation RMSE)
 
 4. **Neural Network (Keras/TensorFlow)**
    - Architecture:
@@ -218,7 +221,7 @@ uv run python generate_eda_plots.py
    - Loss function: Mean Squared Error
    - Metrics: Root Mean Squared Error
    - Training: 200 epochs, batch size 32
-   - Performance: Best model with Validation RMSE: 65,373.00 and Test RMSE: 65,899.69
+   - Performance: Best model with Validation RMSE: 66,436.45 and Test RMSE: 66,156.31
 
 ### Model Comparison Visualization
 
@@ -246,17 +249,17 @@ plt.show()
 |-------|------|-------|
 | **Linear Regression (Baseline)** | 68,645.28 | Baseline model |
 | **Lasso Regression** | 68,564.26 | Best alpha: 24 |
-| **Ridge Regression** | 68,569.34 | Best alpha: 31 |
-| **Neural Network** | 65,373.00 | 200 epochs, 64-64 architecture |
+| **Ridge Regression** | 68,569.34 | Best alpha: 10 |
+| **Neural Network** | 66,436.45 | 200 epochs, 64-64 architecture |
 
 ### Test Set Performance
 
 | Model | RMSE | Notes |
 |-------|------|-------|
-| **Linear Regression (Baseline)** | 70,084.57 | Baseline model |
-| **Lasso Regression** | 70,132.64 | Best alpha: 24 |
-| **Ridge Regression** | 70,151.54 | Best alpha: 31 |
-| **Neural Network** | 65,899.69 | 200 epochs, 64-64 architecture |
+| **Linear Regression (Baseline)** | 71,165.85 | Baseline model |
+| **Lasso Regression** | 71,222.11 | Best alpha: 24 |
+| **Ridge Regression** | 71,243.57 | Best alpha: 10 |
+| **Neural Network** | 66,156.31 | 200 epochs, 64-64 architecture |
 
 ### Key Findings
 
@@ -307,7 +310,7 @@ All four models demonstrated remarkably similar performance, with RMSE values cl
 - **Use Case**: When feature selection is desired or when dealing with high-dimensional data
 
 #### 3. Ridge Regression
-- **Performance**: Competitive linear model (Validation RMSE: 68,569.34, Test RMSE: 70,151.54) with optimal alpha=31
+- **Performance**: Competitive linear model (Validation RMSE: 68,569.34, Test RMSE: 71,243.57) with optimal alpha=10
 - **Strengths**:
   - L2 regularization prevents overfitting while retaining all features
   - Better generalization than baseline on validation set
@@ -319,10 +322,10 @@ All four models demonstrated remarkably similar performance, with RMSE values cl
 - **Use Case**: Good choice when interpretability is important and slight performance trade-off is acceptable
 
 #### 4. Neural Network
-- **Performance**: Best performing model (Validation RMSE: 65,373.00, Test RMSE: 65,899.69) with 64-64 architecture
+- **Performance**: Best performing model (Validation RMSE: 66,436.45, Test RMSE: 66,156.31) with 64-64 architecture
 - **Strengths**:
   - Captures non-linear relationships and feature interactions effectively
-  - Significantly better performance than linear models (~5,000-6,000 RMSE improvement)
+  - Significantly better performance than linear models (~5,000-5,500 RMSE improvement)
   - Flexible architecture allows for complex pattern learning
   - Potential for further improvement with more sophisticated architectures
 - **Weaknesses**:
@@ -338,7 +341,7 @@ All four models demonstrated remarkably similar performance, with RMSE values cl
 #### Why Neural Network Performed Best
 1. **Non-linear Patterns**: The neural network successfully captured non-linear relationships and feature interactions that linear models cannot
 2. **Architecture Effectiveness**: The 64-64 architecture with ReLU activations and gradient clipping proved effective for this problem
-3. **Generalization**: The model showed good generalization with test RMSE (65,899.69) close to validation RMSE (65,373.00)
+3. **Generalization**: The model showed good generalization with test RMSE (66,156.31) close to validation RMSE (66,436.45)
 
 #### Why Linear Models Showed Similar Performance
 1. **Linear Dominance**: The problem has strong linear components, with `median_income` showing strong linear correlation (~0.69)
@@ -347,15 +350,15 @@ All four models demonstrated remarkably similar performance, with RMSE values cl
 
 #### Performance Patterns
 The results show:
-- **Neural Network Advantage**: Neural network achieved ~5,000-6,000 RMSE improvement over linear models, demonstrating the value of capturing non-linear patterns
+- **Neural Network Advantage**: Neural network achieved ~5,000-5,500 RMSE improvement over linear models, demonstrating the value of capturing non-linear patterns
 - **Linear Model Convergence**: All linear models (Baseline, Lasso, Ridge) showed similar performance, suggesting regularization provides marginal benefits for this dataset
 - **Data Quality**: The features are well-engineered and informative, allowing both linear and non-linear models to perform reasonably well
 
 ### Practical Recommendations
 
 #### For Production Deployment
-1. **Primary Choice**: **Neural Network** - Best performance (Test RMSE: 65,899.69) when interpretability is less critical
-2. **Alternative**: **Linear Regression (Baseline)** - Best among linear models on test set (Test RMSE: 70,084.57) with full interpretability
+1. **Primary Choice**: **Neural Network** - Best performance (Test RMSE: 66,156.31) when interpretability is less critical
+2. **Alternative**: **Linear Regression (Baseline)** - Best among linear models on test set (Test RMSE: 71,165.85) with full interpretability
 3. **Ensemble Approach**: Consider averaging predictions from Neural Network and best linear model for potentially better generalization
 
 #### For Further Improvement
@@ -381,10 +384,10 @@ The results show:
 
 ### Conclusion
 
-The Neural Network achieved the best performance with a significant improvement (~5,000-6,000 RMSE) over linear models. However, **model selection should be based on practical considerations** (interpretability, deployment complexity, inference speed) rather than performance alone. 
+The Neural Network achieved the best performance with a significant improvement (~5,000-5,500 RMSE) over linear models. However, **model selection should be based on practical considerations** (interpretability, deployment complexity, inference speed) rather than performance alone. 
 
-- For **maximum performance**: Use the Neural Network (Test RMSE: 65,899.69)
-- For **interpretability and simplicity**: Use Linear Regression (Test RMSE: 70,084.57)
+- For **maximum performance**: Use the Neural Network (Test RMSE: 66,156.31)
+- For **interpretability and simplicity**: Use Linear Regression (Test RMSE: 71,165.85)
 - For **balanced approach**: Consider an ensemble of Neural Network and Linear Regression
 
 The choice depends on whether the ~5,000 RMSE improvement justifies the added complexity and reduced interpretability of the neural network.
@@ -396,9 +399,15 @@ The choice depends on whether the ~5,000 RMSE improvement justifies the added co
 1. Start Jupyter:
 ```bash
 uv run jupyter notebook
+# or
+uv run jupyter lab
 ```
 
-2. Open `project.ipynb` and run all cells
+2. Open `project.ipynb` and select the kernel **"Python (uv: capstone-california-housing)"** from the kernel menu
+
+3. Run all cells
+
+**Note**: The kernel uses the `uv` virtual environment (`.venv`) automatically, so all packages installed via `uv` are available in the notebook.
 
 ### Running Training Scripts
 
